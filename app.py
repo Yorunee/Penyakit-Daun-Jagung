@@ -63,7 +63,11 @@ if USE_MYSQL:
 
 # Default: SQLite database
 if not USE_MYSQL:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url and database_url.startswith('sqlite:'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
     print("✓ Using SQLite database")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
