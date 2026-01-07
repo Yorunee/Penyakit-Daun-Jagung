@@ -205,18 +205,23 @@ with app.app_context():
     
     # Create admin user if not exists
     try:
-        admin = User.query.filter_by(username='admin').first()
+        admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
+        admin_password_env = os.environ.get('ADMIN_PASSWORD')
+        admin_email = os.environ.get('ADMIN_EMAIL', 'admin@corn-disease.com')
+        admin_full_name = os.environ.get('ADMIN_FULL_NAME', 'Administrator')
+
+        admin = User.query.filter_by(username=admin_username).first()
         if not admin:
             admin = User(
-                username='admin',
-                email='admin@corn-disease.com',
-                full_name='Administrator',
+                username=admin_username,
+                email=admin_email,
+                full_name=admin_full_name,
                 role='admin'
             )
-            admin.set_password('adminjagung123')
+            admin.set_password(admin_password_env or 'adminjagung123')
             db.session.add(admin)
             db.session.commit()
-            print("Admin user created: username=admin, password=adminjagung123")
+            print(f"Admin user created: username={admin_username}")
         else:
             # Update existing admin user to have admin role
             try:
@@ -224,6 +229,12 @@ with app.app_context():
                     admin.role = 'admin'
                     db.session.commit()
                     print("Updated existing admin user with admin role")
+
+                # Optional: if ADMIN_PASSWORD is provided, keep admin password in sync
+                if admin_password_env:
+                    admin.set_password(admin_password_env)
+                    db.session.commit()
+                    print("Updated admin password from environment")
             except Exception as e:
                 print(f"Note: Could not update admin role: {e}")
     except Exception as e:
