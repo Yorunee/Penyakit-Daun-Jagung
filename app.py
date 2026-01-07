@@ -44,8 +44,13 @@ if USE_MYSQL:
         test_conn.close()
         
         # MySQL connection string
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 
-            f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4')
+        database_url = os.environ.get('DATABASE_URL')
+        if database_url and database_url.startswith('mysql://'):
+            database_url = 'mysql+pymysql://' + database_url[len('mysql://'):]
+
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url or (
+            f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4'
+        )
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
             'pool_recycle': 300,
             'pool_pre_ping': True
@@ -1139,5 +1144,7 @@ def admin_settings():
                          total_detections=total_detections)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', '5000'))
+    debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+    app.run(debug=debug, host='0.0.0.0', port=port)
 
