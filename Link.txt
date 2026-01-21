@@ -1,0 +1,3 @@
+Link Dataset : https://www.kaggle.com/datasets/taufiqnoviant/daun-jagung
+Link Youtube : https://youtu.be/Mit7rQAXBLA?si=V-u-4it52-3sClf1
+Link Github  : https://github.com/Yorunee/Penyakit-Daun-Jagung.git
